@@ -1,8 +1,8 @@
-import { ErrorMapper } from "utils/error_mapper";
-import { Ai } from "modules/ai"
+import { ErrorMapper } from "engine/utils/error_mapper";
+import { ai } from "engine/ai"
 
-Ai.getInstance().runOnReset();
+ai.runOnReset();
 
 export const loop = ErrorMapper.wrapLoop(() => {
-    Ai.getInstance().runOnTick();
+    ai.runOnTick();
 });
