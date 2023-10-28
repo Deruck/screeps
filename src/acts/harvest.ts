@@ -72,6 +72,9 @@ export class Harvest extends Act<Creep> {
     }
 
     protected exec(subject: Creep) {
+        if (this.memory.needCarry && this.getResourceCapacity(subject) <= 0) {
+            return Code.DONE;
+        }
         if (
             this.memory.pos &&
             !subject.pos.inRangeTo(this.memory.pos.x, this.memory.pos.y, 0)
@@ -111,9 +114,6 @@ export class Harvest extends Act<Creep> {
             default:
                 subject.say(`${this.ACT_ICON}${ret}`);
                 break;
-        }
-        if (this.memory.needCarry && this.getResourceCapacity(subject) <= 0) {
-            return Code.DONE;
         }
         return Code.PROCESSING;
     }

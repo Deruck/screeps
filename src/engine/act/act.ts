@@ -97,6 +97,9 @@ export abstract class Act<T extends HasActSubject> implements HasMemory {
             this.memory.parentId = subject.act.memory.id;
             delete subject.act;
         }
+        if (!chain) {
+            delete subject.memory.blockedActs;
+        }
         (subject.act as Act<T>) = this;
         if (subject instanceof Creep) {
             if (!Memory.creeps[subject.name]) {
@@ -125,7 +128,7 @@ export abstract class Act<T extends HasActSubject> implements HasMemory {
         Code.DONE |
         Code.FAILED;
 
-    private finishAct(subject: T) {
+    public finishAct(subject: T) {
         memoryManager.delete(this.getActMemoryDest(subject));
         if (!this.memory.parentId) {
             return;
