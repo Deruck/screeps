@@ -1,5 +1,5 @@
 import { Act } from "engine/act/act";
-import { Emoji, ReturnCode } from "engine/consts";
+import { Emoji, Code } from "engine/consts";
 import { memoryManager } from "engine/memory_manager";
 import { Move } from "./move";
 import { Color } from "engine/consts";
@@ -64,8 +64,7 @@ export class Withdraw extends Act<Creep> {
         if (!subject.pos.inRangeTo(target.pos.x, target.pos.y, 1) && subject.getActiveBodyparts(MOVE) === 0) {
             return false;
         }
-        return this.isSubjectCapacityValid(subject.store) &&
-               this.isTargetCapacityValid(store);
+        return subject.getActiveBodyparts(CARRY) > 0;
     }
 
     private isSubjectCapacityValid(store: StoreDefinition) {
@@ -81,21 +80,21 @@ export class Withdraw extends Act<Creep> {
     protected exec(subject: Creep) {
         const target = Game.getObjectById(this.memory.targetId);
         if (!target) {
-            return ReturnCode.FAILED;
+            return Code.FAILED;
         }
         const store = target.store;
         if (!store) {
-            return ReturnCode.FAILED;
+            return Code.FAILED;
         }
         if (!this.isSubjectCapacityValid(subject.store) ||
             !this.isTargetCapacityValid(store)) {
-            return ReturnCode.FAILED;
+            return Code.FAILED;
         }
         const ret = subject.withdraw(target, this.memory.resourceType, this.memory.amount);
         switch (ret) {
             case OK:
                 subject.say(`${this.ACT_ICON}`);
-                return ReturnCode.DONE;
+                return Code.DONE;
             case ERR_NOT_IN_RANGE:
                 subject.assignAct(
                     new Move({
@@ -108,11 +107,11 @@ export class Withdraw extends Act<Creep> {
                     }),
                     true
                 );
-                return ReturnCode.PROCESSING;
+                return Code.PROCESSING;
             default:
                 subject.say(`${this.ACT_ICON}${ret}`);
                 logger.info(`${this.ACT_ICON}${ret}: resource ${this.memory.resourceType} amount ${this.memory.amount}`);
-                return ReturnCode.FAILED;
+                return Code.FAILED;
         }
     }
 }

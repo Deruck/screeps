@@ -1,5 +1,5 @@
 import { Act } from "engine/act/act";
-import { Emoji, ReturnCode } from "engine/consts";
+import { Emoji, Code } from "engine/consts";
 import { memoryManager } from "engine/memory_manager";
 
 interface TemplateMemory extends ActMemory {
@@ -31,7 +31,7 @@ export class Template extends Act<Creep> {
     }
 
     protected exec(subject: Creep) {
-        return ReturnCode.PROCESSING;
+        return Code.PROCESSING;
     }
 }
 

@@ -1,5 +1,5 @@
 import { Act, HasActSubject } from "engine/act/act";
-import { Color, Emoji, ReturnCode } from "engine/consts";
+import { Color, Emoji, Code } from "engine/consts";
 import { memoryManager } from "engine/memory_manager";
 import { Move } from "./move";
 
@@ -57,8 +57,7 @@ export class Harvest extends Act<Creep> {
     protected isActValid(subject: Creep): boolean {
         if (
             this.memory.needCarry &&
-            (subject.getActiveBodyparts(CARRY) === 0 ||
-             this.getResourceCapacity(subject) <= 0)
+            (subject.getActiveBodyparts(CARRY) === 0)
         ) {
             return false;
         }
@@ -88,7 +87,7 @@ export class Harvest extends Act<Creep> {
                 }),
                 true
             );
-            return ReturnCode.PROCESSING;
+            return Code.PROCESSING;
         }
         const ret = subject.harvest(this.getResource());
         switch (ret) {
@@ -108,15 +107,15 @@ export class Harvest extends Act<Creep> {
                     }),
                     true
                 );
-                return ReturnCode.PROCESSING;
+                return Code.PROCESSING;
             default:
                 subject.say(`${this.ACT_ICON}${ret}`);
                 break;
         }
         if (this.memory.needCarry && this.getResourceCapacity(subject) <= 0) {
-            return ReturnCode.DONE;
+            return Code.DONE;
         }
-        return ReturnCode.PROCESSING;
+        return Code.PROCESSING;
     }
 
     private getResourceType(source: Harvestable): ResourceConstant {

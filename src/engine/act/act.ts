@@ -1,5 +1,5 @@
 import { HasMemory, memoryManager } from "engine/memory_manager";
-import { Emoji, ReturnCode } from "engine/consts";
+import { Emoji, Code } from "engine/consts";
 import { logger } from "engine/utils/logger";
 
 export type HasActSubject = Creep | StructureTower;
@@ -15,6 +15,7 @@ declare global {
     interface HasActMemory {
         act?: ActMemory;
         blockedActs?: { [id: ActId]: ActMemory };
+        lastActStatus?: Code.DONE | Code.FAILED | Code.PROCESSING;
     }
 
     interface CreepMemory extends HasActMemory { }
@@ -40,7 +41,7 @@ export abstract class Act<T extends HasActSubject> implements HasMemory {
     abstract memory: ActMemory;
     abstract readonly ACT_NAME: string;
     abstract readonly ACT_ICON: Emoji;
-    isInitFailed: boolean = false;
+    protected isInitFailed: boolean = false;
 
     constructor(opts?: ActOpts) {
         if (!opts) {
@@ -48,9 +49,9 @@ export abstract class Act<T extends HasActSubject> implements HasMemory {
         }
     }
 
-    run(subject: T): ReturnCode.PROCESSING |
-                     ReturnCode.DONE |
-                     ReturnCode.FAILED {
+    run(subject: T): Code.PROCESSING |
+                     Code.DONE |
+                     Code.FAILED {
         let ret;
         try {
             ret = this.exec(subject);
@@ -58,19 +59,19 @@ export abstract class Act<T extends HasActSubject> implements HasMemory {
             logger.error(`Error occurs on act ${this.ACT_NAME}.exec with message "${err}"`);
             subject.say(Emoji.FAIL);
             this.finishAct(subject);
-            return ReturnCode.FAILED;
+            return Code.FAILED;
         }
-        if (ret == ReturnCode.FAILED) {
+        if (ret == Code.FAILED) {
             subject.say(Emoji.FAIL);
             this.finishAct(subject);
-            return ReturnCode.FAILED;
+            return Code.FAILED;
         }
-        if (ret == ReturnCode.DONE) {
+        if (ret == Code.DONE) {
             subject.say(Emoji.SUCCESS);
             this.finishAct(subject);
-            return ReturnCode.DONE;
+            return Code.DONE;
         }
-        return ReturnCode.PROCESSING;
+        return Code.PROCESSING;
     }
 
     assignTo(subject: T, chain: boolean = false): boolean {
@@ -120,9 +121,9 @@ export abstract class Act<T extends HasActSubject> implements HasMemory {
      * FAILED: 执行中途失败
      */
     protected abstract exec(subject: T):
-        ReturnCode.PROCESSING |
-        ReturnCode.DONE |
-        ReturnCode.FAILED;
+        Code.PROCESSING |
+        Code.DONE |
+        Code.FAILED;
 
     private finishAct(subject: T) {
         memoryManager.delete(this.getActMemoryDest(subject));

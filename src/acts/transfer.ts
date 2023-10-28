@@ -1,5 +1,5 @@
 import { Act } from "engine/act/act";
-import { Emoji, ReturnCode } from "engine/consts";
+import { Emoji, Code } from "engine/consts";
 import { memoryManager } from "engine/memory_manager";
 import { Move } from "./move";
 import { Color } from "engine/consts";
@@ -10,6 +10,7 @@ type Transferable = Creep | PowerCreep | AnyStoreStructure;
 interface TransferMemory extends ActMemory {
     targetId: Id<Transferable>,
     resourceType: ResourceConstant,
+    resourceThr: number,
     amount?: number
 }
 
@@ -47,50 +48,46 @@ export class Transfer extends Act<Creep> {
         this.memory.targetId = opts.targetId;
         this.memory.resourceType = opts.resourceType;
         this.memory.amount = opts.amount;
+        this.memory.resourceThr = (opts.amount != undefined) ? opts.amount : 1;
     }
 
     protected isActValid(subject: Creep): boolean {
-        const resourceThr = (this.memory.amount != undefined) ? Math.max(1, this.memory.amount) : 1;
-        if (subject.store.getUsedCapacity(this.memory.resourceType) < resourceThr) {
-            return false;
-        }
         const target = Game.getObjectById(this.memory.targetId);
         if (!target) {
+            return false;
+        }
+        const store = target.store;
+        if (!store) {
             return false;
         }
         if (!subject.pos.inRangeTo(target.pos.x, target.pos.y, 1) && subject.getActiveBodyparts(MOVE) === 0) {
             return false;
         }
-        const store = target.store;
-        if (!store) {
-            return false;
-        }
-        const capacity = store.getFreeCapacity(this.memory.resourceType);
-        if (!capacity || capacity <= 0) {
-            return false;
-        }
-        return true;
+        return subject.getActiveBodyparts(CARRY) > 0;
     }
 
     protected exec(subject: Creep) {
         const target = Game.getObjectById(this.memory.targetId);
         if (!target) {
-            return ReturnCode.FAILED;
+            return Code.FAILED;
         }
         const store = target.store;
         if (!store) {
-            return ReturnCode.FAILED;
+            return Code.FAILED;
         }
-        const capacity = store.getFreeCapacity(this.memory.resourceType);
-        if (!capacity) {
-            return ReturnCode.FAILED;
+        const targetCapacity = store.getFreeCapacity(this.memory.resourceType);
+        if (!targetCapacity || targetCapacity < this.memory.resourceThr) {
+            return Code.FAILED;
         }
-        const amount = (this.memory.amount != undefined) ? Math.min(this.memory.amount, capacity) : undefined;
-        const ret = subject.transfer(target, this.memory.resourceType, amount);
+        const subjectCapacity = store.getUsedCapacity(this.memory.resourceType);
+        if (!subjectCapacity || subjectCapacity < this.memory.resourceThr) {
+            return Code.FAILED;
+        }
+        const ret = subject.transfer(target, this.memory.resourceType, this.memory.amount);
         switch (ret) {
             case OK:
                 subject.say(`${this.ACT_ICON}`);
-                return ReturnCode.DONE;
+                return Code.DONE;
             case ERR_NOT_IN_RANGE:
                 subject.assignAct(
                     new Move({
@@ -103,11 +100,11 @@ export class Transfer extends Act<Creep> {
                     }),
                     true
                 );
-                return ReturnCode.PROCESSING;
+                return Code.PROCESSING;
             default:
                 subject.say(`${this.ACT_ICON}${ret}`);
-                logger.info(`${this.ACT_ICON}${ret}: resource ${this.memory.resourceType} amount ${amount}`);
-                return ReturnCode.FAILED;
+                logger.info(`${this.ACT_ICON}${ret}: resource ${this.memory.resourceType} amount ${this.memory.amount}`);
+                return Code.FAILED;
         }
     }
 }

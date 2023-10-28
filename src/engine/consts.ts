@@ -1,4 +1,4 @@
-export enum ReturnCode {
+export enum Code {
     DONE = "[Done]",
     PROCESSING = "[Processing]",
     FAILED = "[Failed]",

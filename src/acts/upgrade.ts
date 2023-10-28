@@ -1,5 +1,5 @@
 import { Act } from "engine/act/act";
-import { Emoji, ReturnCode } from "engine/consts";
+import { Emoji, Code } from "engine/consts";
 import { memoryManager } from "engine/memory_manager";
 import { Move } from "./move";
 import { Color } from "engine/consts";
@@ -41,14 +41,16 @@ export class Upgrade extends Act<Creep> {
         if (!subject.pos.inRangeTo(target.pos.x, target.pos.y, 3) && subject.getActiveBodyparts(MOVE) === 0) {
             return false;
         }
-        return subject.store.getUsedCapacity(RESOURCE_ENERGY) > 0 &&
-               subject.getActiveBodyparts(WORK) > 0;
+        return subject.getActiveBodyparts(WORK) > 0;
     }
 
     protected exec(subject: Creep) {
         const target = Game.getObjectById(this.memory.targetId);
         if (!target) {
-            return ReturnCode.FAILED;
+            return Code.FAILED;
+        }
+        if (subject.store.getUsedCapacity(RESOURCE_ENERGY) <= 0) {
+            return Code.DONE;
         }
         const ret = subject.upgradeController(target);
         switch (ret) {
@@ -67,15 +69,12 @@ export class Upgrade extends Act<Creep> {
                     }),
                     true
                 );
-                return ReturnCode.PROCESSING;
+                return Code.PROCESSING;
             default:
                 subject.say(`${this.ACT_ICON}${ret}`);
-                return ReturnCode.FAILED;
+                return Code.FAILED;
         }
-        if (subject.store.getUsedCapacity(RESOURCE_ENERGY) <= 0) {
-            return ReturnCode.DONE;
-        }
-        return ReturnCode.PROCESSING;
+        return Code.PROCESSING;
     }
 }
 

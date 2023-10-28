@@ -1,5 +1,5 @@
 import { Act } from "engine/act/act";
-import { Emoji, ReturnCode } from "engine/consts";
+import { Emoji, Code } from "engine/consts";
 import { memoryManager } from "engine/memory_manager";
 import { Move } from "./move";
 import { Color } from "engine/consts";
@@ -39,19 +39,22 @@ export class Pickup extends Act<Creep> {
         if (!subject.pos.inRangeTo(resource.pos.x, resource.pos.y, 1) && subject.getActiveBodyparts(MOVE) === 0) {
             return false;
         }
-        return subject.store.getFreeCapacity() > 0;
+        return true;
     }
 
     protected exec(subject: Creep) {
         const resource = Game.getObjectById(this.memory.targetId);
         if (!resource) {
-            return ReturnCode.FAILED;
+            return Code.FAILED;
+        }
+        if (subject.store.getFreeCapacity() <= 0) {
+            return Code.FAILED;
         }
         const ret = subject.pickup(resource);
         switch (ret) {
             case OK:
                 subject.say(`${this.ACT_ICON}`);
-                return ReturnCode.DONE;
+                return Code.DONE;
             case ERR_NOT_IN_RANGE:
                 subject.assignAct(
                     new Move({
@@ -64,10 +67,10 @@ export class Pickup extends Act<Creep> {
                     }),
                     true
                 );
-                return ReturnCode.PROCESSING;
+                return Code.PROCESSING;
             default:
                 subject.say(`${this.ACT_ICON}${ret}`);
-                return ReturnCode.FAILED;
+                return Code.FAILED;
         }
     }
 }

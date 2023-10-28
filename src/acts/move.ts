@@ -1,5 +1,5 @@
 import { Act } from "engine/act/act";
-import { DEFAULT_MOVE_TO_OPTS, Emoji, ReturnCode } from "engine/consts";
+import { DEFAULT_MOVE_TO_OPTS, Emoji, Code } from "engine/consts";
 import { memoryManager } from "engine/memory_manager";
 
 interface MoveMemory extends ActMemory {
@@ -80,15 +80,15 @@ export class Move extends Act<Creep> {
                 subject.say(`${Emoji.SEARCH}${Emoji.FAIL}`);
                 break;
             case ERR_NO_BODYPART:
-                return ReturnCode.FAILED;
+                return Code.FAILED;
             default:
                 subject.say(`${this.ACT_ICON}${ret}`);
                 break;
         }
         if (this.isEnd(subject)) {
-            return ReturnCode.DONE;
+            return Code.DONE;
         }
-        return ReturnCode.PROCESSING;
+        return Code.PROCESSING;
     }
 }
 

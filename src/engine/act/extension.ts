@@ -1,7 +1,7 @@
 import { logger } from "engine/utils/logger";
 import { HasActSubject, Act } from "./act";
 import { memoryManager } from "engine/memory_manager";
-import { ReturnCode } from "engine/consts";
+import { Code } from "engine/consts";
 
 declare global {
 
@@ -9,10 +9,10 @@ declare global {
 
     interface HasAct<T extends HasActSubject> {
         run(this: T):
-            ReturnCode.DONE |
-            ReturnCode.FAILED |
-            ReturnCode.PROCESSING |
-            ReturnCode.IDLE;
+            Code.DONE |
+            Code.FAILED |
+            Code.PROCESSING |
+            Code.IDLE;
         assignAct(this: T, act: Act<T>, chain: boolean): boolean;
         getActName(this: T): string | undefined;
         isIdle(this: T): boolean;
@@ -35,12 +35,14 @@ function run(this: HasActSubject) {
             memoryManager.delete(`creeps["${this.name}"].act`);
         }
     } else {
-        return ReturnCode.FAILED;
+        return Code.FAILED;
     }
     if (this.act) {
-        return (this.act as Act<typeof this>).run(this);
+        const ret = (this.act as Act<typeof this>).run(this);
+        this.memory.lastActStatus = ret;
+        return ret;
     }
-    return ReturnCode.IDLE;
+    return Code.IDLE;
 }
 
 function assignAct<T extends HasActSubject>(this: T, act: Act<T>, chain: boolean = false) {
