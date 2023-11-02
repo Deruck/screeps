@@ -1,33 +1,16 @@
-import { extensionManager } from "engine/extension_manager";
+import { extensionManager } from "engine/extensions";
 import { statsLogger } from "engine/stats_logger"
 import { testManager } from './test_manager';
 import { Singleton } from "engine/utils/singleton";
-import { runActs } from "./act/act";
-import { Move } from "acts/move";
-import { Harvest } from "acts/harvest";
 import { memoryManager } from "./memory_manager";
-import { Build } from "acts/build";
-import { Upgrade } from "acts/upgrade";
-import { Transfer } from "acts/transfer";
-import { Repair } from "acts/repair";
-import { Withdraw } from "acts/withdraw";
-import { Pickup } from "acts/pickup";
-
-
-new Move();
-new Harvest();
-new Build();
-new Upgrade();
-new Transfer();
-new Repair();
-new Withdraw();
-new Pickup();
+import { runner } from "./runner";
 
 class Ai extends Singleton {
 
     runOnReset(): void {
         statsLogger.logOnReset();
         extensionManager.loadExtensionsOnReset();
+        runner.runOnReset();
         testManager.runOnReset();
         memoryManager.cleanOnReset();
     }
@@ -35,7 +18,7 @@ class Ai extends Singleton {
     runOnTick(): void {
         statsLogger.logOnTickStart();
         extensionManager.loadExtensionsOnTick();
-        runActs();
+        runner.runOnTick();
         testManager.runOnTick();
         statsLogger.logOnTickEnd();
     }

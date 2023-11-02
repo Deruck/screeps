@@ -5,11 +5,13 @@ import { Move } from "./move";
 import { Color } from "engine/consts";
 
 interface RepairMemory extends ActMemory {
-    targetId: Id<Structure>
+    targetId: Id<Structure>,
+    thres?: number
 }
 
 interface RepairOpts extends ActOpts {
-    targetId: Id<Structure>
+    targetId: Id<Structure>,
+    thres?: number
 }
 
 
@@ -21,6 +23,10 @@ export class Repair extends Act<Creep> {
         targetId: ""
     }
 
+    /**
+     * @param {[Id<Structure>]} targetId
+     * @param {?number} thres thres > 1 时为绝对hits，0 < thres <= 1 时为与最大hits的比例
+     */
     constructor(opts?: RepairOpts) {
         super(opts)
         if (!opts) {
@@ -31,6 +37,7 @@ export class Repair extends Act<Creep> {
             return;
         }
         this.memory.targetId = opts.targetId;
+        this.memory.thres = opts.thres;
     }
 
     protected isActValid(subject: Creep): boolean {
@@ -49,8 +56,12 @@ export class Repair extends Act<Creep> {
         if (!target) {
             return Code.DONE;
         }
+        let thres = this.memory.thres != undefined ? this.memory.thres : target.hitsMax;
+        if (thres <= 1) {
+            thres *= target.hitsMax;
+        }
         if (subject.store.getUsedCapacity(RESOURCE_ENERGY) <= 0 ||
-            target.hits === target.hitsMax) {
+            target.hits >= thres) {
             return Code.DONE;
         }
         const ret = subject.repair(target);

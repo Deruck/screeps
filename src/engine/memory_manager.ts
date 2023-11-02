@@ -1,36 +1,69 @@
+import { registerToGlobal } from "./utils/global";
 import { logger } from "./utils/logger";
 import { Singleton } from "./utils/singleton";
 
-export interface HasMemory {
-    memory: Object;
-}
+declare global {
+    interface MemoryObj { }
+    interface HasMemory {
+        memory: MemoryObj;
+    }
 
-type ClassName = string;
-type MemDest = string;
+    type ClassName = string;
+    type MemDest = string;
+}
 
 declare global {
     interface Memory {
-        memoryManager: { [dest: MemDest]: ClassName | undefined };
+        memoryManager: {
+            classMap: { [dest: MemDest]: ClassName },
+            reservedCreeps: { [creepName: string]: null }
+        };
     }
 }
 
 class MemoryManager extends Singleton {
+    get memory() {
+        return Memory.memoryManager;
+    }
+
+    get classMap() {
+        return this.memory.classMap;
+    }
+
+    get reservedCreeps() {
+        return this.memory.reservedCreeps;
+    }
+
+    private constructor() {
+        super()
+        if (!Memory.memoryManager) {
+            Memory.memoryManager = {
+                classMap: {},
+                reservedCreeps: {}
+            }
+        }
+        if (!this.memory.classMap) {
+            this.memory.classMap = {};
+        }
+        if (!this.memory.reservedCreeps) {
+            this.memory.reservedCreeps = {};
+        }
+    }
 
     set(obj: HasMemory, dest: MemDest) {
-        if (!Memory.memoryManager) {
-            Memory.memoryManager = {};
-        }
-        Memory.memoryManager[dest] = obj.constructor.name;
+        this.classMap[dest] = obj.constructor.name;
         eval(`${this.getFullDest(dest)} = obj.memory;`);
     }
 
     delete(dest: MemDest) {
-        eval(`delete ${this.getFullDest(dest)};`);
-        delete Memory.memoryManager[dest];
+        try {
+            eval(`delete ${this.getFullDest(dest)};`);
+        } catch { }
+        delete this.classMap[dest];
     }
 
     load<T extends HasMemory>(dest: MemDest): T | undefined {
-        const className = Memory.memoryManager[dest];
+        const className = this.classMap[dest];
         if (!className) {
             return undefined;
         }
@@ -54,14 +87,35 @@ class MemoryManager extends Singleton {
     }
 
     registerClass(cls: new () => HasMemory) {
-        (<any>global)[cls.name]= cls;
+        registerToGlobal(cls, cls.name);
+    }
+
+    reserveCreep(creepName: string) {
+        if (!(creepName in this.reservedCreeps)) {
+            this.reservedCreeps[creepName] = null;
+        }
+    }
+
+    unreserveCreep(creepName: string) {
+        delete this.memory.reservedCreeps[creepName];
     }
 
     cleanOnReset() {
         for (const name in Memory.creeps) {
-            if (!(name in Game.creeps)) {
+            if (!(name in Game.creeps) && !(name in this.memory.reservedCreeps)) {
                 logger.info(`Clean dead creep memory ${name}.`);
                 delete Memory.creeps[name];
+            }
+        }
+        for (const dest in this.classMap) {
+            let ret;
+            try {
+                ret = eval(this.getFullDest(dest));
+            } catch {
+                this.delete(dest);
+            }
+            if (ret === undefined) {
+                this.delete(dest);
             }
         }
     }

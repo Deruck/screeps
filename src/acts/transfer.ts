@@ -29,6 +29,11 @@ export class Transfer extends Act<Creep> {
         targetId: ""
     }
 
+    /**
+     * @param targetId: Id<Transferable>
+     * @param resourceType: ResourceConstant
+     * @param amount?: number
+     */
     constructor(opts?: TransferOpts) {
         super(opts)
         if (!opts) {
@@ -40,9 +45,8 @@ export class Transfer extends Act<Creep> {
             return;
         }
         const capacity = store.getFreeCapacity(opts.resourceType);
-        if (!capacity || capacity <= 0) {
+        if (capacity == undefined) {
             this.isInitFailed = true;
-            console.log(capacity);
             return;
         }
         this.memory.targetId = opts.targetId;
@@ -76,11 +80,11 @@ export class Transfer extends Act<Creep> {
             return Code.FAILED;
         }
         const targetCapacity = store.getFreeCapacity(this.memory.resourceType);
-        if (!targetCapacity || targetCapacity < this.memory.resourceThr) {
+        if (targetCapacity == null || targetCapacity < this.memory.resourceThr) {
             return Code.FAILED;
         }
-        const subjectCapacity = store.getUsedCapacity(this.memory.resourceType);
-        if (!subjectCapacity || subjectCapacity < this.memory.resourceThr) {
+        const subjectCapacity = subject.store.getUsedCapacity(this.memory.resourceType);
+        if (subjectCapacity == null || subjectCapacity < this.memory.resourceThr) {
             return Code.FAILED;
         }
         const ret = subject.transfer(target, this.memory.resourceType, this.memory.amount);

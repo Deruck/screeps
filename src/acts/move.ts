@@ -59,6 +59,9 @@ export class Move extends Act<Creep> {
     }
 
     protected exec(subject: Creep) {
+        if (this.isEnd(subject)) {
+            return Code.DONE;
+        }
         const ret = subject.moveTo(
             this.memory.x,
             this.memory.y,
@@ -84,9 +87,6 @@ export class Move extends Act<Creep> {
             default:
                 subject.say(`${this.ACT_ICON}${ret}`);
                 break;
-        }
-        if (this.isEnd(subject)) {
-            return Code.DONE;
         }
         return Code.PROCESSING;
     }

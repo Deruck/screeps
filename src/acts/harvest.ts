@@ -1,9 +1,11 @@
-import { Act, HasActSubject } from "engine/act/act";
+import { Act, CanActType } from "engine/act/act";
 import { Color, Emoji, Code } from "engine/consts";
 import { memoryManager } from "engine/memory_manager";
 import { Move } from "./move";
 
-type Harvestable = Mineral | Source | Deposit;
+declare global {
+    type Harvestable = Mineral | Source | Deposit;
+}
 
 interface HarvestMemory extends ActMemory {
     targetId: Id<Harvestable>,
@@ -137,7 +139,7 @@ export class Harvest extends Act<Creep> {
         return Game.getObjectById(this.memory.targetId) as Harvestable;
     }
 
-    private getResourceCapacity(subject: HasActSubject) {
+    private getResourceCapacity(subject: CanActType) {
         return subject.store.getFreeCapacity(this.getResourceType(this.getResource())) as number;
     }
 }

@@ -5,16 +5,15 @@ import { Move } from "./move";
 import { Color } from "engine/consts";
 import { logger } from "engine/utils/logger";
 
+declare global {
+    interface PickupMemory extends ActMemory {
+        targetId: Id<Resource>,
+    }
 
-interface PickupMemory extends ActMemory {
-    targetId: Id<Resource>,
+    interface PickupOpts extends ActOpts {
+        targetId: Id<Resource>,
+    }
 }
-
-interface PickupOpts extends ActOpts {
-    targetId: Id<Resource>,
-}
-
-
 export class Pickup extends Act<Creep> {
     readonly ACT_NAME: string = "PICKUP";
     readonly ACT_ICON: Emoji = Emoji.PICKUP;

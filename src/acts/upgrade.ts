@@ -6,10 +6,12 @@ import { Color } from "engine/consts";
 
 interface UpgradeMemory extends ActMemory {
     targetId: Id<StructureController>
+    times?: number
 }
 
 interface UpgradeOpts extends ActOpts {
-    targetId: Id<StructureController>
+    targetId: Id<StructureController>,
+    times?: number
 }
 
 
@@ -20,7 +22,9 @@ export class Upgrade extends Act<Creep> {
         //@ts-ignore
         targetId: ""
     }
-
+    /**
+     * @param targetId
+     */
     constructor(opts?: UpgradeOpts) {
         super(opts)
         if (!opts) {
@@ -31,6 +35,7 @@ export class Upgrade extends Act<Creep> {
             return;
         }
         this.memory.targetId = opts.targetId;
+        this.memory.times = opts.times;
     }
 
     protected isActValid(subject: Creep): boolean {
@@ -56,6 +61,9 @@ export class Upgrade extends Act<Creep> {
         switch (ret) {
             case OK:
                 subject.say(`${this.ACT_ICON}`);
+                if (this.memory.times != undefined) {
+                    this.memory.times--;
+                }
                 break;
             case ERR_NOT_IN_RANGE:
                 subject.assignAct(
@@ -73,6 +81,9 @@ export class Upgrade extends Act<Creep> {
             default:
                 subject.say(`${this.ACT_ICON}${ret}`);
                 return Code.FAILED;
+        }
+        if (this.memory.times != undefined && this.memory.times <= 0) {
+            return Code.DONE;
         }
         return Code.PROCESSING;
     }

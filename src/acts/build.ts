@@ -20,7 +20,9 @@ export class Build extends Act<Creep> {
         //@ts-ignore
         targetId: ""
     }
-
+    /**
+     * @param targetId
+     */
     constructor(opts?: BuildOpts) {
         super(opts)
         if (!opts) {

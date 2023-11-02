@@ -30,6 +30,12 @@ export class Withdraw extends Act<Creep> {
         targetId: ""
     }
 
+    /**
+     * @param {Id<Withdrawable>} targetId Id<Withdrawable>
+     * @param {ResourceConstant} resourceType ResourceConstant
+     * @param {number?} amount number?
+     * @returns
+     */
     constructor(opts?: WithdrawOpts) {
         super(opts)
         if (!opts) {
@@ -41,9 +47,8 @@ export class Withdraw extends Act<Creep> {
             return;
         }
         const capacity = store.getUsedCapacity(opts.resourceType);
-        if (!capacity || capacity <= 0) {
+        if (capacity == undefined) {
             this.isInitFailed = true;
-            console.log(capacity);
             return;
         }
         this.memory.targetId = opts.targetId;
