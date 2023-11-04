@@ -1,87 +1,71 @@
-import { logger } from "engine/utils/logger";
-import { CanActType, Act } from "../act/act";
-import { memoryManager } from "engine/memory_manager";
+import { Act } from "../act/act";
 import { Code } from "engine/consts";
 import { Role } from "engine/act/role";
 
 declare global {
 
-    interface Constructor<T extends _HasId> extends _Constructor<T>, _ConstructorById<T> {}
-
-    interface CanAct<T extends CanActType> {
+    interface Creep {
         runAct():
             Code.DONE |
             Code.FAILED |
             Code.PROCESSING |
             Code.IDLE;
-        assignAct(act: Act<T>, chain?: boolean): boolean;
+        assignAct(act: Act, chain?: boolean): boolean;
         endAct(): void;
         endRole(): void;
         /**按先后顺序设置行动链 */
-        assignActChain(actChain: Act<T>[], chian: boolean): boolean;
+        assignActChain(actChain: Act[], chian: boolean): boolean;
         getActName(): string | undefined;
         isIdle(): boolean;
-        act?: Act<T>;
+        act?: Act;
 
         runRole(): boolean;
-        assignRole(role: Role<T>): boolean;
-        role?: Role<T>;
+        assignRole(role: Role): boolean;
+        role?: Role;
     }
-
-    interface Creep extends CanAct<Creep> { }
-
-    interface StructureTower extends CanAct<StructureTower> { }
 }
 
-function runAct(this: CanAct<CanActType>) {
-    if (this instanceof Creep) {
-        Act.initActOnTick(this);
-    } else {
-        return Code.FAILED;
-    }
+function runAct(this: Creep) {
+    Act.initActOnTick(this);
     if (this.act) {
-        const ret = (this.act as Act<typeof this>).run(this);
+        const ret = (this.act as Act).run(this);
         this.memory.lastActStatus = ret;
         return ret;
     }
     return Code.IDLE;
 }
 
-function runRole(this: CanAct<CanActType>) {
-    if (this instanceof Creep) {
-        Role.initRoleOnTick(this);
-    } else {
-        return false;
-    }
+function runRole(this: Creep) {
+    Role.initRoleOnTick(this);
     if (this.role) {
-        (this.role as Role<typeof this>).run(this);
+        (this.role as Role).run(this);
     }
     return true;
 }
 
-function assignAct(this: CanActType, act: Act<CanActType>, chain: boolean = false) {
+function assignAct(this: Creep, act: Act, chain: boolean = false) {
     return act.assignTo(this, chain);
 }
 
-function assignRole(this: CanActType, role: Role<CanActType>): boolean {
+function assignRole(this: Creep, role: Role): boolean {
     return role.assignTo(this);
 }
 
-function endAct<T extends CanActType>(this: T) {
+function endAct(this: Creep) {
     if (this.act) {
-        (this.act as Act<T>).endAct(this, false);
+        (this.act as Act).endAct(this, false);
     }
 }
 
-function endRole<T extends CanActType>(this: T) {
+function endRole(this: Creep) {
     if (this.role) {
-        (this.role as Role<T>).endRole(this);
+        (this.role as Role).endRole(this);
     }
 }
 
-function assignActChain(this: CanActType, actChain: Act<CanActType>[], chain: boolean = false) {
+function assignActChain(this: Creep, actChain: Act[], chain: boolean = false) {
     const revertActId = this.act?.memory.id;
-    const revertAct = function (subject: CanActType) {
+    const revertAct = function (subject: Creep) {
         if (chain && revertActId != undefined) {
             while (subject.act && subject.act.memory.id != revertActId) {
                 //@ts-ignore
@@ -102,11 +86,11 @@ function assignActChain(this: CanActType, actChain: Act<CanActType>[], chain: bo
     return true;
 }
 
-function isIdle(this: CanActType): boolean {
+function isIdle(this: Creep): boolean {
     return this.memory.act == undefined;
 }
 
-function getActName(this: CanActType) {
+function getActName(this: Creep) {
     if (this.act) {
         return this.act.ACT_NAME;
     }
@@ -114,17 +98,13 @@ function getActName(this: CanActType) {
 }
 
 export function loadActExtension() {
-    const loadClass = function <T extends CanActType> (cls: Constructor<T>) {
-        cls.prototype.runAct = runAct;
-        cls.prototype.assignAct = assignAct;
-        cls.prototype.assignActChain = assignActChain;
-        cls.prototype.getActName = getActName;
-        cls.prototype.isIdle = isIdle;
-        cls.prototype.endAct = endAct;
-        cls.prototype.assignRole = assignRole;
-        cls.prototype.runRole = runRole;
-        cls.prototype.endRole = endRole;
-    }
-    loadClass(Creep);
-    loadClass(StructureTower);
+    Creep.prototype.runAct = runAct;
+    Creep.prototype.assignAct = assignAct;
+    Creep.prototype.assignActChain = assignActChain;
+    Creep.prototype.getActName = getActName;
+    Creep.prototype.isIdle = isIdle;
+    Creep.prototype.endAct = endAct;
+    Creep.prototype.assignRole = assignRole;
+    Creep.prototype.runRole = runRole;
+    Creep.prototype.endRole = endRole;
 }

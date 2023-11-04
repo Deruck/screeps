@@ -2,7 +2,6 @@ import { memoryManager } from "engine/memory_manager";
 import { Emoji, Code } from "engine/consts";
 import { logger } from "engine/utils/logger";
 
-export type CanActType = Creep | StructureTower;
 export type ActId = string;
 
 declare global {
@@ -12,15 +11,11 @@ declare global {
         parentId?: ActId
     }
 
-    interface CanActMemory {
+    interface CreepMemory {
         act?: ActMemory;
         blockedActs?: { [id: ActId]: ActMemory };
         lastActStatus?: Code.DONE | Code.FAILED | Code.PROCESSING;
     }
-
-    interface CreepMemory extends CanActMemory { }
-
-    interface TowerMemory extends CanActMemory { }
 
     interface ActOpts { }
 
@@ -33,7 +28,7 @@ declare global {
  * ```
  * 注册到缓存管理中
  */
-export abstract class Act<T extends CanActType> implements HasMemory {
+export abstract class Act implements HasMemory {
     abstract memory: ActMemory;
     abstract readonly ACT_NAME: string;
     abstract readonly ACT_ICON: Emoji;
@@ -45,7 +40,7 @@ export abstract class Act<T extends CanActType> implements HasMemory {
         }
     }
 
-    run(subject: T): Code.PROCESSING |
+    run(subject: Creep): Code.PROCESSING |
                      Code.DONE |
                      Code.FAILED {
         let ret;
@@ -70,7 +65,7 @@ export abstract class Act<T extends CanActType> implements HasMemory {
         return Code.PROCESSING;
     }
 
-    assignTo(subject: T, chain: boolean = false): boolean {
+    assignTo(subject: Creep, chain: boolean = false): boolean {
         this.memory.id = `${this.ACT_NAME}_${Game.time}_${_.uniqueId()}`;
         if (this.isInitFailed) {
             logger.error(`Act ${this.ACT_NAME} init failed on ${subject.name} with memory ${this.memory}.`);
@@ -94,23 +89,19 @@ export abstract class Act<T extends CanActType> implements HasMemory {
             delete subject.act;
         }
         if (subject.act) {
-            (subject.act as Act<T>).endAct(subject, chain);
+            (subject.act as Act).endAct(subject, chain);
         }
-        (subject.act as Act<T>) = this;
+        subject.act = this;
         subject.memory;  // 初始化 memory
-        if (subject instanceof Creep) {
-            memoryManager.set(subject.act as Act<Creep>, Act.getActMemoryDest(subject));
-            this.run(subject);
-            return true;
-        }
-        logger.error(`Act ${this.ACT_NAME} not supported on ${subject.name};`);
-        return false;
+        memoryManager.set(subject.act as Act, Act.getActMemoryDest(subject));
+        this.run(subject);
+        return true;
     }
 
     /**
      * 检查行动是否满足合法条件
      */
-    protected abstract isActValid(subject: T): boolean;
+    protected abstract isActValid(subject: Creep): boolean;
     /**
      * 执行
      * 返回值：
@@ -118,12 +109,12 @@ export abstract class Act<T extends CanActType> implements HasMemory {
      * DONE: 执行结束
      * FAILED: 执行中途失败
      */
-    protected abstract exec(subject: T):
+    protected abstract exec(subject: Creep):
         Code.PROCESSING |
         Code.DONE |
         Code.FAILED;
 
-    public endAct(subject: T, chain: boolean = true) {
+    public endAct(subject: Creep, chain: boolean = true) {
         memoryManager.delete(Act.getActMemoryDest(subject));
         if (!this.memory.parentId) {
             return;
@@ -139,12 +130,12 @@ export abstract class Act<T extends CanActType> implements HasMemory {
         memoryManager.move(`${Act.getBlockedActsMemoryDest(subject)}["${this.memory.parentId}"]`,
                            Act.getActMemoryDest(subject));
         subject.act = memoryManager.load(Act.getActMemoryDest(subject));
-        (subject.act as Act<T>).run(subject);
+        (subject.act as Act).run(subject);
         subject.say(`${this.ACT_ICON}=>${subject.act?.ACT_ICON}`);
         return;
     }
 
-    static initActOnTick(subject: CanActType): void {
+    static initActOnTick(subject: Creep): void {
         if (!subject.memory.act) {
             return;
         }
@@ -154,17 +145,11 @@ export abstract class Act<T extends CanActType> implements HasMemory {
         }
     }
 
-    private static getActMemoryDest(subject: CanActType): string {
-        if (subject instanceof Creep) {
-            return `creeps["${subject.name}"].act`;
-        }
-        throw Error("getActMemoryDest: unsupported type.");
+    private static getActMemoryDest(subject: Creep): string {
+        return `creeps["${subject.name}"].act`;
     }
 
-    private static getBlockedActsMemoryDest(subject: CanActType): string {
-        if (subject instanceof Creep) {
-            return `creeps["${subject.name}"].blockedActs`;
-        }
-        throw Error("getActMemoryDest: unsupported type.");
+    private static getBlockedActsMemoryDest(subject: Creep): string {
+        return `creeps["${subject.name}"].blockedActs`;
     }
 }

@@ -15,7 +15,7 @@ interface UpgradeOpts extends ActOpts {
 }
 
 
-export class Upgrade extends Act<Creep> {
+export class Upgrade extends Act {
     readonly ACT_NAME: string = "UPGRADE";
     readonly ACT_ICON: Emoji = Emoji.UPGRADE;
     memory: UpgradeMemory = {

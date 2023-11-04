@@ -11,7 +11,7 @@ interface TemplateOpts extends ActOpts {
 }
 
 
-export class Template extends Act<Creep> {
+export class Template extends Act {
     readonly ACT_NAME: string;
     readonly ACT_ICON: Emoji;
     memory: TemplateMemory = {

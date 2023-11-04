@@ -1,4 +1,4 @@
-import { Act, CanActType } from "engine/act/act";
+import { Act } from "engine/act/act";
 import { Color, Emoji, Code } from "engine/consts";
 import { memoryManager } from "engine/memory_manager";
 import { Move } from "./move";
@@ -28,7 +28,7 @@ interface HarvestOpts extends ActOpts {
 }
 
 
-export class Harvest extends Act<Creep> {
+export class Harvest extends Act {
     readonly ACT_NAME: string = "HARVEST"
     readonly ACT_ICON: Emoji = Emoji.HARVEST;
     memory: HarvestMemory = {
@@ -139,7 +139,7 @@ export class Harvest extends Act<Creep> {
         return Game.getObjectById(this.memory.targetId) as Harvestable;
     }
 
-    private getResourceCapacity(subject: CanActType) {
+    private getResourceCapacity(subject: Creep) {
         return subject.store.getFreeCapacity(this.getResourceType(this.getResource())) as number;
     }
 }

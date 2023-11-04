@@ -1,5 +1,5 @@
 import { Body, BodypartsMap } from "engine/body";
-import { notifierManager } from "engine/utils/notifier";
+import { notifierManager, NotifierState } from "engine/utils/notifier";
 import { isUndefined } from "lodash";
 
 declare global {
@@ -14,7 +14,7 @@ declare global {
         spawnCreep(body: Body, name: string, opts?: SpawnOptions): ScreepsReturnCode;
         run(): void;
         pushSpawnCreep(
-            body: BodypartsMap, name: string, level: number, opts?: SpawnOptions
+            body: BodypartsMap, name: string, level: number, opts?: SpawnOptions, doJumpQue?: boolean
         ): NotifierId<pushSpawnCreepNotifierState> | null;
     }
 

@@ -1,8 +1,6 @@
 import { ErrorMapper } from "engine/utils/error_mapper";
 import { ai } from "engine/ai"
 
-ai.runOnReset();
-
 export const loop = ErrorMapper.wrapLoop(() => {
     ai.runOnTick();
 });
@@ -20,6 +18,8 @@ import {
 } from "acts"
 import { Body } from "engine/body";
 import { Pioneer } from './roles';
+import { configs } from "./configs";
+import { spawnManager } from './engine/spawn_manager';
 
 export {
     Move,
@@ -31,5 +31,9 @@ export {
     Repair,
     Withdraw,
     Body,
-    Pioneer
+    Pioneer,
+    configs,
+    spawnManager
 };
+
+ai.runOnReset();

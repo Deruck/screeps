@@ -15,7 +15,7 @@ interface RepairOpts extends ActOpts {
 }
 
 
-export class Repair extends Act<Creep> {
+export class Repair extends Act {
     readonly ACT_NAME: string = "REPAIR";
     readonly ACT_ICON: Emoji = Emoji.REPAIR;
     memory: RepairMemory = {

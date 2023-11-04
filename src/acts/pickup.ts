@@ -14,7 +14,7 @@ declare global {
         targetId: Id<Resource>,
     }
 }
-export class Pickup extends Act<Creep> {
+export class Pickup extends Act {
     readonly ACT_NAME: string = "PICKUP";
     readonly ACT_ICON: Emoji = Emoji.PICKUP;
     memory: PickupMemory = {

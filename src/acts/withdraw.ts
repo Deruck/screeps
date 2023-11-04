@@ -22,7 +22,7 @@ interface WithdrawOpts extends ActOpts {
 }
 
 
-export class Withdraw extends Act<Creep> {
+export class Withdraw extends Act {
     readonly ACT_NAME: string = "WITHDRAW";
     readonly ACT_ICON: Emoji = Emoji.WITHDRAW;
     memory: WithdrawMemory = {

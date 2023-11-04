@@ -25,7 +25,7 @@ interface MoveOpts extends ActOpts {
 }
 
 
-export class Move extends Act<Creep> {
+export class Move extends Act {
     readonly ACT_NAME: string = "MOVE"
     readonly ACT_ICON: Emoji = Emoji.MOVE;
     memory: MoveMemory = {

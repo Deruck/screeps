@@ -3,16 +3,18 @@
  */
 
 import { memoryManager } from "engine/memory_manager";
-import { Act, CanActType } from "./act";
+import { Act } from "./act";
 import { logger } from "engine/utils/logger";
 
 type RoleName = string;
 
 declare global {
 
+    interface RoleOpts { }
+
     interface RoleMemory { }
 
-    interface CanActMemory {
+    interface CreepMemory {
         role?: RoleMemory
         roleName?: RoleName
     }
@@ -20,13 +22,13 @@ declare global {
     type Color = string;
 }
 
-export abstract class Role<T extends CanActType> implements HasMemory {
+export abstract class Role implements HasMemory {
     abstract memory: RoleMemory;
     abstract readonly NAME: RoleName;
     abstract readonly COLOR: string;
     protected isInitFailed: boolean = false;
 
-    assignTo(subject: T): boolean {
+    assignTo(subject: Creep): boolean {
         if (this.isInitFailed) {
             logger.error(`Role ${this.NAME} init failed on ${subject.name}.`);
             return false;
@@ -36,24 +38,22 @@ export abstract class Role<T extends CanActType> implements HasMemory {
             return false;
         }
         subject.endRole();
-        (subject.role as Role<T>) = this;
+        (subject.role as Role) = this;
         memoryManager.set(this, Role.getRoleMemoryDest(subject));
         subject.memory.roleName = this.NAME;
         return true;
     }
 
-    endRole(subject: T) {
+    endRole(subject: Creep) {
         memoryManager.delete(Role.getRoleMemoryDest(subject));
         delete subject.memory.roleName;
         if (subject.act) {
-            (subject.act as Act<T>).endAct(subject);
+            (subject.act as Act).endAct(subject);
         }
     }
 
-    run(subject: T) {
-        if (subject instanceof Creep) {
-            subject.circle(this.COLOR);
-        }
+    run(subject: Creep) {
+        subject.circle(this.COLOR);
         if (!subject.isIdle()) {
             return;
         }
@@ -63,7 +63,7 @@ export abstract class Role<T extends CanActType> implements HasMemory {
         }
     }
 
-    static initRoleOnTick(subject: CanActType): void {
+    static initRoleOnTick(subject: Creep): void {
         if (!subject.memory.role) {
             return;
         }
@@ -73,10 +73,10 @@ export abstract class Role<T extends CanActType> implements HasMemory {
         }
     }
 
-    abstract isValid(subject: T): boolean;
-    abstract assignAct(subject: T): boolean;
+    abstract isValid(subject: Creep): boolean;
+    abstract assignAct(subject: Creep): boolean;
 
-    private static getRoleMemoryDest(subject: CanActType): string {
+    private static getRoleMemoryDest(subject: Creep): string {
         if (subject instanceof Creep) {
             return `creeps["${subject.name}"].role`;
         }

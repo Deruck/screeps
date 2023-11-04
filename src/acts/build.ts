@@ -13,7 +13,7 @@ interface BuildOpts extends ActOpts {
 }
 
 
-export class Build extends Act<Creep> {
+export class Build extends Act {
     readonly ACT_NAME: string = "BUILD";
     readonly ACT_ICON: Emoji = Emoji.BUILD;
     memory: BuildMemory = {

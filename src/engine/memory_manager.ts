@@ -1,4 +1,4 @@
-import { registerToGlobal } from "./utils/global";
+import { registerClass } from "./utils/class";
 import { logger } from "./utils/logger";
 import { Singleton } from "./utils/singleton";
 
@@ -87,7 +87,7 @@ class MemoryManager extends Singleton {
     }
 
     registerClass(cls: new () => HasMemory) {
-        registerToGlobal(cls, cls.name);
+        registerClass(cls);
     }
 
     reserveCreep(creepName: string) {

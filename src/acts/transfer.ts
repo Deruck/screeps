@@ -21,7 +21,7 @@ interface TransferOpts extends ActOpts {
 }
 
 
-export class Transfer extends Act<Creep> {
+export class Transfer extends Act {
     readonly ACT_NAME: string = "TRANSFER";
     readonly ACT_ICON: Emoji = Emoji.TRANSFER;
     memory: TransferMemory = {

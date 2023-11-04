@@ -7,6 +7,7 @@ declare global {
             thres: number, structureType?: STRUCTURE_WALL | STRUCTURE_RAMPART
         ): Id<StructureWall | StructureRampart> | null;
         findSoonestDecayRuin(resourceType?: ResourceConstant): Id<Ruin | Tombstone> | null;
+        findMySpawns(onlyIdle?: boolean): StructureSpawn[];
     }
 
     interface RoomMemory {
@@ -93,8 +94,20 @@ function findSoonestDecayRuin(this: Room, resourceType?: ResourceConstant): Id<R
     return _.min(targets, (s) => s.ticksToDecay).id;
 }
 
+function findMySpawns(this: Room, onlyIdle: boolean = false): StructureSpawn[] {
+    if (onlyIdle) {
+        return this.find(
+            FIND_MY_SPAWNS,
+            { filter: (s: StructureSpawn) => s.spawning == null }
+        );
+    } else {
+        return this.find(FIND_MY_SPAWNS);
+    }
+}
+
 export function loadRoomExtension() {
     Room.prototype.findResources = findResources;
     Room.prototype.findWeakestReinforceable = findWeakestReinforceable;
     Room.prototype.findSoonestDecayRuin = findSoonestDecayRuin;
+    Room.prototype.findMySpawns = findMySpawns;
 }

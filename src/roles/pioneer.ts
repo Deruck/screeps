@@ -2,15 +2,21 @@ import { Role } from "engine/act/role";
 import { Color } from "engine/consts";
 import { Pickup, Build, Harvest, Transfer, Withdraw, Repair, Upgrade } from "acts";
 import { memoryManager } from "engine/memory_manager";
+import { logger } from "engine/utils/logger";
 
+declare global {
+    interface PioneerOpts extends RoleOpts {
+        sourceId: Id<Source>
+    }
 
-interface PioneerMemory extends RoleMemory {
-    sourceId: Id<Source>;
-    repairTargetId?: Id<Structure>;
-    repairThres?: number;
+    interface PioneerMemory extends RoleMemory {
+        sourceId: Id<Source>;
+        repairTargetId?: Id<Structure>;
+        repairThres?: number;
+    }
 }
 
-export class Pioneer extends Role<Creep> {
+export class Pioneer extends Role {
     memory: PioneerMemory = {
         sourceId: "" as Id<Source>
     }
@@ -22,9 +28,7 @@ export class Pioneer extends Role<Creep> {
      * @param sourceId
      * @returns
      */
-    constructor(opts?: {
-        sourceId: Id<Source>
-    }) {
+    constructor(opts?: PioneerOpts) {
         super()
         if (!opts) {
             this.isInitFailed = true;
@@ -33,6 +37,7 @@ export class Pioneer extends Role<Creep> {
         const source = Game.getObjectById(opts.sourceId);
         if (!source || !(source instanceof Source)) {
             this.isInitFailed = true;
+            logger.error(`Id ${opts.sourceId} is not a source.`)
             return;
         }
         this.memory.sourceId = opts.sourceId;

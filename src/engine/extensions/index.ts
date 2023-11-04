@@ -7,6 +7,8 @@ import { loadNameProxyExtension } from "./name";
 import { loadRoomPositionExtension } from "./position";
 import { loadCreepExtension } from "./creep";
 import { loadRoomExtension } from "./room";
+import { initSpawnquesRoomMemoryOnTick } from "engine/spawn_manager";
+import { initRoleManagerRoomMemoryOnTick } from "engine/role_manager";
 
 class ExtensionManager extends Singleton {
     loadExtensionsOnReset() {
@@ -21,7 +23,8 @@ class ExtensionManager extends Singleton {
     }
 
     loadExtensionsOnTick() {
-
+        initSpawnquesRoomMemoryOnTick();
+        initRoleManagerRoomMemoryOnTick();
     }
 
     static getInstance(): ExtensionManager {

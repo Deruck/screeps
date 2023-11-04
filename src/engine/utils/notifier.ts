@@ -1,18 +1,19 @@
 import { Singleton } from "./singleton";
 
 declare global {
-    type NotifierId<T extends NotifierState> = string;
-    enum NotifierState {
-        UNINITIALIZED = 0,
-        WAITING = 1,
-        PROCESSING = 2,
-        DONE = 3,
-        FAILED = 4
-    }
+    type NotifierId<T extends NotifierState> = string & Tag.OpaqueTag<T>;
 
     interface Memory {
         notifiers: { [id: NotifierId<NotifierState>]: NotifierState; }
     }
+}
+
+export enum NotifierState {
+    UNINITIALIZED = 0,
+    WAITING = 1,
+    PROCESSING = 2,
+    DONE = 3,
+    FAILED = 4
 }
 
 /**用于对象之间传递回调信息 */
@@ -28,9 +29,9 @@ class NotifierManager extends Singleton {
     getNewNotifier<T extends NotifierState>(
         defaultState: T
     ): NotifierId<T> {
-        let id = `${Game.time}_${_.uniqueId()}`;
+        let id = `${Game.time}_${_.uniqueId()}` as NotifierId<T>;
         while (id in Memory.notifiers) {
-            id = `${Game.time}_${_.uniqueId()}_${_.random(100, 999)}`;
+            id = `${Game.time}_${_.uniqueId()}_${_.random(100, 999)}` as NotifierId<T>;
         }
         Memory.notifiers[id] = defaultState;
         return id;

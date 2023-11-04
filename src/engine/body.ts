@@ -7,6 +7,7 @@ export class Body {
     readonly BODYPARTS_ARR: BodyPartConstant[] = [];
     readonly COST: number = 0;
     readonly IS_VALID: boolean;
+    readonly SPAWN_TIME: number;
 
     constructor(
         readonly BODYPARTS: BodypartsMap
@@ -20,6 +21,7 @@ export class Body {
             }
         }
         this.IS_VALID = this.BODYPARTS_ARR.length <= 50;
+        this.SPAWN_TIME = this.BODYPARTS_ARR.length * CREEP_SPAWN_TIME;
     }
 }
 
