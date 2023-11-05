@@ -174,8 +174,10 @@ class RoleManager extends Singleton {
         }
 
         // 将亡 creep 管理
+        // 孵化 + 移动就位时间 + 随机数以错开孵化高峰期
+        const readyTime = body.SPAWN_TIME + 20 + _.random(0, 30)
         for (const creepName in roleConfig.workingCreeps) {
-            if (<number>Game.creeps[creepName].ticksToLive <= body.SPAWN_TIME) {
+            if (<number>Game.creeps[creepName].ticksToLive <= readyTime) {
                 delete roleConfig.workingCreeps[creepName];
                 roleConfig.dyingCreeps[creepName] = null;
             }

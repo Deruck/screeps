@@ -10,7 +10,7 @@ export enum Code {
 }
 
 export const DEFAULT_MOVE_TO_OPTS: MoveToOpts = {
-    reusePath: 5,
+    reusePath: 3,
     visualizePathStyle: {
         stroke: "#ffffff",
     }

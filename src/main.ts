@@ -20,6 +20,7 @@ import { Body } from "engine/body";
 import { Pioneer } from './roles';
 import { configs } from "./configs";
 import { spawnManager } from './engine/spawn_manager';
+import { PioneerUpgrader } from './roles/pioneer_upgrader';
 
 export {
     Move,
@@ -33,7 +34,8 @@ export {
     Body,
     Pioneer,
     configs,
-    spawnManager
+    spawnManager,
+    PioneerUpgrader
 };
 
 ai.runOnReset();

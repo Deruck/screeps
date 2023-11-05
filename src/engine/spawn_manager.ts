@@ -36,6 +36,15 @@ class SpawnManager extends Singleton {
         for (const que of this.getSpawnQues(room)) {
             if (que.length > 0) {
                 const spawnOpts = que[0];
+                // TODO 防止房间断宕机
+                const body = new Body(spawnOpts.body);
+                if (body.COST > room.energyAvailable) {
+                    const times = room.energyAvailable / room.energyCapacityAvailable;
+                    for (const key of Object.keys(spawnOpts.body)) {
+                        (<any>spawnOpts.body)[key] = Math.max(1, Math.floor((<any>spawnOpts.body)[key] * times));
+                    }
+                }
+                // TODO end
                 const ret = spawn.spawnCreep(
                     new Body(spawnOpts.body),
                     spawnOpts.name,

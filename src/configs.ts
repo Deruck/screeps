@@ -28,6 +28,47 @@ configs.register("roles", {});
 configs.set(
     "roles",
     {
+        "E9N54": {
+            pioneer_upgrader: {
+                cls: "PioneerUpgrader",
+                num: 1,
+                body: {
+                    work: 1,
+                    carry: 1,
+                    move: 2
+                },
+                opts: {
+                    sourceId: "5bbcad729099fc012e63747c"
+                },
+                level: 1
+            },
+            pioneer1: {
+                cls: "Pioneer",
+                num: 6,
+                body: {
+                    work: 1,
+                    carry: 1,
+                    move: 2
+                },
+                opts: {
+                    sourceId: "5bbcad729099fc012e63747c"
+                },
+                level: 0
+            },
+            pioneer2: {
+                cls: "Pioneer",
+                num: 3,
+                body: {
+                    work: 1,
+                    carry: 1,
+                    move: 2
+                },
+                opts: {
+                    sourceId: "5bbcad729099fc012e63747b"
+                },
+                level: 2
+            }
+        },
         "sim": {
             pioneer1: {
                 cls: "Pioneer",
