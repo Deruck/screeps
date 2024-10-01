@@ -28,7 +28,7 @@ configs.register("roles", {});
 configs.set(
     "roles",
     {
-        "E9N54": {
+        "E37S58": {
             pioneer_upgrader: {
                 cls: "PioneerUpgrader",
                 num: 1,
@@ -38,7 +38,7 @@ configs.set(
                     move: 2
                 },
                 opts: {
-                    sourceId: "5bbcad729099fc012e63747c"
+                    sourceId: "5bbcaf289099fc012e63a3fd"
                 },
                 level: 1
             },
@@ -51,7 +51,7 @@ configs.set(
                     move: 2
                 },
                 opts: {
-                    sourceId: "5bbcad729099fc012e63747c"
+                    sourceId: "5bbcaf289099fc012e63a3fd"
                 },
                 level: 0
             },
@@ -64,7 +64,7 @@ configs.set(
                     move: 2
                 },
                 opts: {
-                    sourceId: "5bbcad729099fc012e63747b"
+                    sourceId: "5bbcaf289099fc012e63a3fb"
                 },
                 level: 2
             }
