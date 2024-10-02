@@ -86,40 +86,6 @@ class MemoryManager extends Singleton {
         }
     }
 
-    registerClass(cls: new () => HasMemory) {
-        registerClass(cls);
-    }
-
-    reserveCreep(creepName: string) {
-        if (!(creepName in this.reservedCreeps)) {
-            this.reservedCreeps[creepName] = null;
-        }
-    }
-
-    unreserveCreep(creepName: string) {
-        delete this.memory.reservedCreeps[creepName];
-    }
-
-    cleanOnReset() {
-        for (const name in Memory.creeps) {
-            if (!(name in Game.creeps) && !(name in this.memory.reservedCreeps)) {
-                logger.info(`Clean dead creep memory ${name}.`);
-                delete Memory.creeps[name];
-            }
-        }
-        for (const dest in this.classMap) {
-            let ret;
-            try {
-                ret = eval(this.getFullDest(dest));
-            } catch {
-                this.delete(dest);
-            }
-            if (ret === undefined) {
-                this.delete(dest);
-            }
-        }
-    }
-
     // Singleton Interface
     static getInstance(): MemoryManager {
         return super.getInstance.call(this) as MemoryManager;

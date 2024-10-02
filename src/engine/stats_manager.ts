@@ -1,7 +1,7 @@
 import { logger } from "engine/utils/logger";
 import { Singleton } from "engine/utils/singleton";
 
-class StatsLogger extends Singleton {
+class StatsManager extends Singleton {
     logOnReset() {
         logger.info("Global Reset");
     };
@@ -13,9 +13,9 @@ class StatsLogger extends Singleton {
     logOnTickEnd() { }
 
     // Singleton Interface
-    static getInstance(): StatsLogger {
-        return super.getInstance.call(this) as StatsLogger;
+    static getInstance(): StatsManager {
+        return super.getInstance.call(this) as StatsManager;
     }
 }
 
-export const statsLogger = StatsLogger.getInstance();
+export const statsManager = StatsManager.getInstance();

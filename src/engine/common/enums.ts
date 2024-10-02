@@ -9,13 +9,6 @@ export enum Code {
     IDLE = "[Idle]"
 }
 
-export const DEFAULT_MOVE_TO_OPTS: MoveToOpts = {
-    reusePath: 3,
-    visualizePathStyle: {
-        stroke: "#ffffff",
-    }
-}
-
 export enum Emoji {
     HARVEST = "⛏",
     TRANSFER = "📥",
@@ -51,10 +44,3 @@ export enum Color {
     TRANSFERER = "#95a5a6",
     PIONEER = "#f9ca24"
 }
-
-export const ENERGY_PER_TICK_PER_SOURCE_CENTER_ROOM =
-    SOURCE_ENERGY_KEEPER_CAPACITY / ENERGY_REGEN_TIME;
-export const ENERGY_PER_TICK_PER_SOURCE_RESERVED_ROOM =
-    SOURCE_ENERGY_CAPACITY / ENERGY_REGEN_TIME;
-export const ENERGY_PER_TICK_PER_SOURCE_UNRESERVED_ROOM =
-    SOURCE_ENERGY_NEUTRAL_CAPACITY / ENERGY_REGEN_TIME;

@@ -2,16 +2,26 @@ import { Singleton } from "./singleton";
 
 class Logger extends Singleton {
 
-    private _verbose = 0;
+    channelSwitches: Map<number, boolean> = new Map<number, boolean>([
+        [0,  true]
+    ]);
 
-    set verbose(verbose: number) {
-        this._verbose = verbose;
+    enableChannel(channel: number) {
+        this.channelSwitches.set(channel, true);
     }
 
-    info(message: any, verbose: number = 0) {
-        if (verbose <= this._verbose) {
-            console.log(`[INFO]: ${message}`);
+    disableChannel(channel: number) {
+        this.channelSwitches.set(channel, false);
+    }
+
+    debug(message: any, channel: number = 0) {
+        if (this.channelSwitches.get(channel)) {
+            console.log(`[DEBUG]: ${message}`);
         }
+    }
+
+    info(message: any) {
+        console.log(`[INFO]: ${message}`);
     }
 
     error(message: any) {
